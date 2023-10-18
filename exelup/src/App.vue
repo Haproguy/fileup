@@ -2,7 +2,8 @@
 import { nextTick, ref } from 'vue';
 
 const fileList = ref([]);
-const chkaa = ref([])
+const inputElement = ref(null);
+const dragClass = ref(false);
 
 const upfile = async (e) => {
   const files = Array.from(e.target.files);
@@ -15,9 +16,27 @@ const upfile = async (e) => {
   await nextTick();
 }
 
-const chkfl = () => {
-  chkaa.value.push(1);
-  console.log(chkaa.value)
+const onClick = () => {
+  inputElement.value.click();
+}
+
+const onDragEnter = () => {
+  dragClass.value = true;
+}
+
+const onDragLeave = () => {
+  dragClass.value = false;
+}
+
+const onDragOver = (e) => {
+  e.preventDefault();
+}
+
+const onDrop = (e) => {
+  e.preventDefault();
+  dragClass.value = false;
+  const event = { target: { files: e.dataTransfer.files } };
+  upfile(event);
 }
 
 </script>
@@ -28,12 +47,13 @@ const chkfl = () => {
     <hr>
     <div class="contents">
       <div class="upload-box">
-        <div id="drop-file" class="drag-file">
+        <div id="drop-file" class="drag-file" @dragenter="onDragEnter()" @dragover="onDragOver($event)"
+          @dragleave="onDragLeave()" @drop="onDrop($event)" @click="onClick()">
           <img src="https://img.icons8.com/pastel-glyph/2x/image-file.png" alt="파일 아이콘" class="image">
           <p class="message">Drag files to upload</p>
         </div>
         <label class="file-label" for="chooseFile">Choose File</label>
-        <input class="file" id="chooseFile" type="file" multiple @change="upfile($event)">
+        <input class="file" id="chooseFile" type="file" multiple @change="upfile($event)" ref="inputElement">
       </div>
       <div id="files" class="files">
         <div class="file">
@@ -45,12 +65,8 @@ const chkfl = () => {
           </div>
         </div>
       </div>
-      <!-- <div v-for="(item, idx) in chkaa" :key="idx">
-        {{ item }}
-      </div> -->
     </div>
   </div>
-  <div @click="chkfl()">chk</div>
 </template>
 
 <style scoped>
